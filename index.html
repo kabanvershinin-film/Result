@@ -457,23 +457,37 @@ function buildReport(){
  *  ========================== */
 function downloadCSV(){
   if (!lastReportRows.length){
-    els.error.textContent = "❌ Сначала нажми “Проверить”, чтобы появился отчёт.";
+    els.error.textContent = "❌ Сначала нажми «Проверить», чтобы появился отчёт.";
     return;
   }
+
   const header = ["Показатель","Значение","Ед.","Норма","Статус"];
   const lines = [header.join(";")].concat(
     lastReportRows.map(r => [
-      r.name, r.value ?? "", r.unit ?? "", r.normText ?? "", r.status ?? ""
-    ].map(x => String(x).replaceAll(";", ",")).join(";"))
+      r.name,
+      r.value ?? "",
+      r.unit ?? "",
+      r.normText ?? "",
+      r.status ?? ""
+    ]
+    .map(x => String(x).replaceAll('"','""'))
+    .map(x => `"${x}"`)
+    .join(";"))
   );
-  const blob = new Blob([lines.join("\n")], {type:"text/csv;charset=utf-8"});
+
+  // 🔥 ВАЖНО: BOM для Excel
+  const csv = "\uFEFF" + lines.join("\r\n");
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
+
   const a = document.createElement("a");
   a.href = url;
   a.download = "labs_report.csv";
   document.body.appendChild(a);
   a.click();
   a.remove();
+
   URL.revokeObjectURL(url);
 }
 
