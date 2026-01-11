@@ -5,239 +5,237 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Проверка анализов ребёнка (0–12 лет)</title>
   <style>
-    :root { --bd:#e5e7eb; --tx:#111827; --mut:#6b7280; --bg:#f9fafb; }
+    :root{
+      --bg:#f7f7fb; --card:#ffffff; --bd:#e5e7eb; --tx:#111827; --mut:#6b7280;
+      --ok:#065f46; --hi:#92400e; --lo:#9f1239; --warn:#374151;
+      --btn:#111827; --btnTx:#ffffff;
+    }
     *{ box-sizing:border-box; }
-    body{
-      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color:var(--tx); background:var(--bg);
-    }
-    .wrap{ max-width:1100px; margin:0 auto; padding:20px; }
-    .top{
-      display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; justify-content:space-between;
-      margin-bottom:14px;
-    }
-    h1{ font-size:20px; margin:0; }
+    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:var(--bg); color:var(--tx); }
+    .wrap{ max-width:1200px; margin:0 auto; padding:18px; }
+    .top{ display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; justify-content:space-between; margin-bottom:14px; }
+    h1{ margin:0; font-size:20px; }
     .note{ color:var(--mut); font-size:13px; margin-top:6px; }
-    .grid{
-      display:grid; grid-template-columns: 1fr 1fr; gap:14px;
-    }
-    @media (max-width: 900px){ .grid{ grid-template-columns:1fr; } }
-    .card{
-      background:white; border:1px solid var(--bd); border-radius:14px; padding:14px;
-      box-shadow: 0 1px 2px rgba(0,0,0,.04);
-    }
     .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    label{ font-size:13px; color:var(--mut); display:block; margin-bottom:6px; }
-    input[type="number"]{
-      width:160px; padding:10px 12px; border:1px solid var(--bd); border-radius:10px; background:white;
-      font-size:14px;
+    .card{ background:var(--card); border:1px solid var(--bd); border-radius:14px; padding:14px; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+    .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+    @media (max-width: 980px){ .grid{ grid-template-columns:1fr; } }
+    label{ display:block; font-size:13px; color:var(--mut); margin-bottom:6px; }
+    input[type="number"], input[type="text"]{
+      padding:10px 12px; border:1px solid var(--bd); border-radius:10px; background:white; font-size:14px;
     }
+    input.small{ width:140px; }
+    input.value{ width:140px; }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--bd);
+      border-radius:999px; background:white; color:var(--mut); font-size:13px;
+    }
+    .btns{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+    button{
+      padding:10px 12px; border-radius:12px; border:1px solid var(--bd);
+      background:white; cursor:pointer; font-weight:700;
+    }
+    button.primary{ background:var(--btn); color:var(--btnTx); border-color:var(--btn); }
+    button:hover{ filter:brightness(.98); }
+    .mut{ color:var(--mut); }
+    .hidden{ display:none !important; }
     textarea{
       width:100%; min-height:260px; padding:12px; border:1px solid var(--bd); border-radius:12px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       font-size:12.5px; line-height:1.35; resize:vertical;
     }
-    .btns{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
-    button{
-      padding:10px 12px; border-radius:12px; border:1px solid var(--bd);
-      background:white; cursor:pointer; font-weight:600;
-    }
-    button.primary{ background:#111827; color:white; border-color:#111827; }
-    button:hover{ filter:brightness(.98); }
-    .pill{
-      display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--bd);
-      border-radius:999px; background:white; color:var(--mut); font-size:13px;
-    }
     .table{
       width:100%; border-collapse:separate; border-spacing:0; overflow:hidden;
       border:1px solid var(--bd); border-radius:14px; background:white;
     }
-    .table th, .table td{
-      padding:10px 10px; border-bottom:1px solid var(--bd); font-size:13px; vertical-align:top;
-    }
-    .table th{ text-align:left; color:var(--mut); font-weight:700; background:#fafafa; }
+    .table th, .table td{ padding:10px; border-bottom:1px solid var(--bd); font-size:13px; vertical-align:top; }
+    .table th{ text-align:left; color:var(--mut); font-weight:800; background:#fafafa; }
     .table tr:last-child td{ border-bottom:none; }
-    .s-ok{ color:#065f46; font-weight:700; }
-    .s-hi{ color:#92400e; font-weight:700; }
-    .s-lo{ color:#9f1239; font-weight:700; }
-    .s-warn{ color:#374151; font-weight:700; }
-    .mut{ color:var(--mut); }
-    .err{ color:#b91c1c; font-weight:700; }
-    .foot{ margin-top:10px; color:var(--mut); font-size:12px; }
-    code.k{ background:#f3f4f6; padding:2px 6px; border-radius:8px; }
+    .s-ok{ color:var(--ok); font-weight:800; }
+    .s-hi{ color:var(--hi); font-weight:800; }
+    .s-lo{ color:var(--lo); font-weight:800; }
+    .s-warn{ color:var(--warn); font-weight:800; }
+    .err{ color:#b91c1c; font-weight:800; margin-top:8px; }
+    .mini{ font-size:12px; color:var(--mut); }
+    .k{ background:#f3f4f6; padding:2px 6px; border-radius:8px; }
+    .divider{ height:1px; background:var(--bd); margin:12px 0; }
+    .inputs{
+      display:grid;
+      grid-template-columns: 1.4fr 140px 140px;
+      gap:10px;
+      align-items:center;
+    }
+    @media (max-width: 700px){
+      .inputs{ grid-template-columns: 1fr; }
+      input.value, input.small{ width:100%; }
+    }
+    .hdr{
+      display:grid;
+      grid-template-columns: 1.4fr 140px 140px;
+      gap:10px;
+      color:var(--mut);
+      font-size:12px;
+      font-weight:800;
+      margin-bottom:8px;
+    }
+    @media (max-width: 700px){ .hdr{ display:none; } }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="top">
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>Проверка анализов ребёнка (0–12 лет)</h1>
+      <div class="note">Инструмент сравнивает введённые значения с заданными тобой нормами. Не заменяет консультацию врача.</div>
+    </div>
+    <div class="row">
       <div>
-        <h1>Проверка анализов ребёнка (0–12 лет)</h1>
-        <div class="note">Работает полностью в браузере. Нормы и анализы ты задаёшь сам.</div>
+        <label for="age">Возраст (лет, можно дробно: 0.5 = 6 месяцев)</label>
+        <input id="age" class="small" type="number" min="0" max="12" step="0.1" value="2" />
       </div>
-      <div class="row">
-        <div>
-          <label for="age">Возраст (лет, можно дробно: 0.5 = 6 месяцев)</label>
-          <input id="age" type="number" min="0" max="12" step="0.1" value="7" />
-        </div>
-        <div class="pill" id="ageBandPill">Группа: —</div>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <label>Нормы (JSON). Можно менять. Формат: по возрастным годам 0..12 (каждый год отдельно)</label>
-        <textarea id="norms"></textarea>
-        <div class="foot">
-          Подсказка: структура такая: <code class="k">"0": { "Гемоглобин": {"unit":"г/л","min":..,"max":..}, ... }</code>
-        </div>
-      </div>
-
-      <div class="card">
-        <label>Результаты анализов</label>
-        <textarea id="results"
-          placeholder="Введите результаты (по одной строке):
-Гемоглобин; 112; г/л
-Лейкоциты; 6.1; 10^9/л
-Тромбоциты; 420; 10^9/л"></textarea>
-
-        <div class="foot">
-          Формат: <code class="k">Показатель; значение; единицы</code> (разделитель можно <code class="k">;</code> или <code class="k">,</code>)<br/>
-          Если единицы пустые — сравнение пропустится.
-        </div>
-
-        <div class="btns">
-          <button class="primary" id="checkBtn">Проверить</button>
-          <button id="exampleBtn">Заполнить пример</button>
-          <button id="clearBtn">Очистить результаты</button>
-          <button id="csvBtn">Скачать CSV</button>
-        </div>
-        <div class="foot err" id="error"></div>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:14px;">
-      <label>Отчёт</label>
-      <div id="report"></div>
-      <div class="foot">
-        ⚠️ Информационный инструмент. При отклонениях — лучше обсудить результаты с врачом и смотреть референсы вашей лаборатории.
-      </div>
+      <div class="pill" id="agePill">Группа: —</div>
     </div>
   </div>
 
+  <div class="grid">
+    <!-- Ввод -->
+    <div class="card">
+      <label>Ввод результатов (впиши только цифры)</label>
+      <div class="mini">Показатели уже перечислены списком. Ничего “активного” в поле нет — ты просто вводишь значения.</div>
+      <div class="divider"></div>
+
+      <div class="hdr">
+        <div>Показатель</div>
+        <div>Значение</div>
+        <div>Ед.</div>
+      </div>
+
+      <div id="inputs" class="inputs"></div>
+
+      <div class="btns">
+        <button class="primary" id="checkBtn">Проверить</button>
+        <button id="fillDemoBtn">Заполнить демо</button>
+        <button id="clearBtn">Очистить</button>
+        <button id="csvBtn">Скачать CSV</button>
+      </div>
+
+      <div class="err" id="error"></div>
+
+      <div class="divider"></div>
+
+      <button id="toggleNormsBtn" type="button">Редактировать нормы (JSON)</button>
+      <div id="normsBox" class="hidden" style="margin-top:10px;">
+        <div class="mini">Формат: по годам <span class="k">"0"</span>..<span class="k">"12"</span>. Если <span class="k">min/max</span> пустые — будет “нет нормы”.</div>
+        <textarea id="norms"></textarea>
+      </div>
+    </div>
+
+    <!-- Отчёт -->
+    <div class="card">
+      <label>Отчёт</label>
+      <div id="report" class="mut">Заполни значения и нажми “Проверить”.</div>
+      <div class="divider"></div>
+      <div class="mini">
+        ⚠️ Важно: референсы могут отличаться по лаборатории и методике. При отклонениях лучше обсудить результат с врачом.
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-/**
- * Нормы ПО ГОДАМ 0..12.
- * ВНИМАНИЕ: значения ниже — ДЕМО/шаблон для работы логики.
- * Заменяй min/max на те, которые ты “дашь” (из твоих таблиц/лаборатории).
- */
-const DEFAULT_NORMS_BY_YEAR = {
-  "0": {
-    "Гемоглобин":        {"unit":"г/л","min":100,"max":140},
-    "Эритроциты":        {"unit":"10^12/л","min":3.3,"max":4.9},
-    "Гематокрит":        {"unit":"%","min":30,"max":41},
-    "Лейкоциты":         {"unit":"10^9/л","min":6.0,"max":17.5},
-    "Нейтрофилы":        {"unit":"%","min":15,"max":45},
-    "Лимфоциты":         {"unit":"%","min":45,"max":75},
-    "Моноциты":          {"unit":"%","min":3,"max":12},
-    "Эозинофилы":        {"unit":"%","min":0,"max":5},
-    "Базофилы":          {"unit":"%","min":0,"max":1},
-    "Тромбоциты":        {"unit":"10^9/л","min":150,"max":450},
-    "СОЭ":               {"unit":"мм/ч","min":0,"max":10},
-    "Глюкоза":           {"unit":"ммоль/л","min":3.3,"max":5.5},
-    "АЛТ":               {"unit":"Ед/л","min":0,"max":50},
-    "АСТ":               {"unit":"Ед/л","min":0,"max":60},
-    "Билирубин общий":   {"unit":"мкмоль/л","min":3,"max":20}
-  },
-  "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {}, "7": {}, "8": {}, "9": {}, "10": {}, "11": {}, "12": {}
-};
+/** ==========================
+ *  1) Список показателей (как в твоей таблице)
+ *  ========================== */
+const INDICATORS = [
+  { key: "Лейкоциты (WBC)", unit: "10^9/л" },
+  { key: "Эритроциты (RBC)", unit: "10^12/л" },
+  { key: "Гемоглобин (HGB)", unit: "г/л" },
+  { key: "Гематокрит (HCT)", unit: "%" },
+  { key: "Средний объём эритроцитов (MCV)", unit: "фл" },
+  { key: "Средн. содержание гемоглобина в эритроците (MCH)", unit: "пг" },
+  { key: "Средн. концентрация гемоглобина в эритроцитах (MCHC)", unit: "г/л" },
+  { key: "Показатель гетерогенности эритроцитов (RDW)", unit: "%" },
+  { key: "Тромбоциты (PLT)", unit: "10^9/л" },
+  { key: "Средний объём тромбоцитов (MPV)", unit: "фл" },
 
-// Заполним 1..12 типовыми (как шаблон), чтобы не было пусто
-const TEMPLATE_1_12 = {
-  "Гемоглобин":        {"unit":"г/л","min":115,"max":155},
-  "Эритроциты":        {"unit":"10^12/л","min":4.0,"max":5.2},
-  "Гематокрит":        {"unit":"%","min":35,"max":45},
-  "Лейкоциты":         {"unit":"10^9/л","min":4.5,"max":13.5},
-  "Нейтрофилы":        {"unit":"%","min":35,"max":65},
-  "Лимфоциты":         {"unit":"%","min":25,"max":55},
-  "Моноциты":          {"unit":"%","min":3,"max":11},
-  "Эозинофилы":        {"unit":"%","min":0,"max":5},
-  "Базофилы":          {"unit":"%","min":0,"max":1},
-  "Тромбоциты":        {"unit":"10^9/л","min":150,"max":400},
-  "СОЭ":               {"unit":"мм/ч","min":0,"max":15},
-  "Глюкоза":           {"unit":"ммоль/л","min":3.3,"max":5.5},
-  "АЛТ":               {"unit":"Ед/л","min":0,"max":40},
-  "АСТ":               {"unit":"Ед/л","min":0,"max":40},
-  "Билирубин общий":   {"unit":"мкмоль/л","min":3,"max":20}
-};
-for (let y=1; y<=12; y++){
-  DEFAULT_NORMS_BY_YEAR[String(y)] = structuredClone(TEMPLATE_1_12);
+  { key: "Бласты", unit: "%" },
+  { key: "Промиелоциты", unit: "%" },
+  { key: "Пролимфоциты", unit: "%" },
+  { key: "Миелоциты", unit: "%" },
+  { key: "Метамиелоциты", unit: "%" },
+
+  { key: "Палочкоядерные нейтрофилы, %", unit: "%" },
+  { key: "Сегментоядерные нейтрофилы (NE), %", unit: "%" },
+  { key: "Эозинофилы (EO), %", unit: "%" },
+  { key: "Базофилы (BA), %", unit: "%" },
+  { key: "Лимфоциты (LY), %", unit: "%" },
+  { key: "Лимфоциты (LY), абс.", unit: "10^9/л" },
+  { key: "Моноциты (MO), %", unit: "%" },
+
+  { key: "Плазматические клетки", unit: "%" },
+  { key: "СОЭ", unit: "мм/ч" },
+];
+
+/** ==========================
+ *  2) Нормы (шаблон): min/max пустые, чтобы ты вставил свои
+ *  По умолчанию копируем для всех возрастов 0..12 один шаблон.
+ *  ========================== */
+function makeBlankNorms(){
+  const yearObj = {};
+  for (const it of INDICATORS){
+    yearObj[it.key] = { unit: it.unit, min: null, max: null };
+  }
+  const byYear = {};
+  for (let y=0; y<=12; y++){
+    byYear[String(y)] = structuredClone(yearObj);
+  }
+  return byYear;
 }
+const DEFAULT_NORMS_BY_YEAR = makeBlankNorms();
 
-const DEFAULT_RESULTS_TEXT =
-`Гемоглобин; 112; г/л
-Лейкоциты; 6.1; 10^9/л
-Тромбоциты; 420; 10^9/л
-Глюкоза; 5.2; ммоль/л
-АЛТ; 55; Ед/л`;
-
+/** ==========================
+ *  3) UI refs
+ *  ========================== */
 const els = {
   age: document.getElementById("age"),
+  agePill: document.getElementById("agePill"),
+  inputs: document.getElementById("inputs"),
   norms: document.getElementById("norms"),
-  results: document.getElementById("results"),
-  report: document.getElementById("report"),
-  error: document.getElementById("error"),
-  ageBandPill: document.getElementById("ageBandPill"),
+  normsBox: document.getElementById("normsBox"),
+  toggleNormsBtn: document.getElementById("toggleNormsBtn"),
   checkBtn: document.getElementById("checkBtn"),
-  exampleBtn: document.getElementById("exampleBtn"),
+  fillDemoBtn: document.getElementById("fillDemoBtn"),
   clearBtn: document.getElementById("clearBtn"),
   csvBtn: document.getElementById("csvBtn"),
+  report: document.getElementById("report"),
+  error: document.getElementById("error"),
 };
 
 let lastReportRows = [];
 
+/** ==========================
+ *  4) Helpers
+ *  ========================== */
 function clampAge(a){
   if (Number.isNaN(a)) return 0;
   return Math.min(12, Math.max(0, a));
 }
-
-function pickYearBand(ageYears){
-  return Math.floor(clampAge(ageYears));
-}
-
+function pickYearBand(ageYears){ return Math.floor(clampAge(ageYears)); }
 function setBandPill(){
   const age = parseFloat(els.age.value);
   const y = pickYearBand(age);
-  els.ageBandPill.textContent = `Группа: ${y} год(лет)`;
+  els.agePill.textContent = `Группа: ${y} год(лет)`;
 }
-
-function parseNorms(){
-  const txt = els.norms.value.trim();
-  return JSON.parse(txt);
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, (m)=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+  }[m]));
 }
-
-function splitLine(line){
-  const parts = line.split(";").map(s=>s.trim());
-  if (parts.length >= 2) return parts;
-  return line.split(",").map(s=>s.trim());
+function compare(value, min, max){
+  if (value < min) return "🔻 ниже нормы";
+  if (value > max) return "🔺 выше нормы";
+  return "✅ норма";
 }
-
-function parseResultsText(){
-  const lines = els.results.value.split("\n").map(s=>s.trim()).filter(Boolean);
-  const items = [];
-  for (const line of lines){
-    const p = splitLine(line);
-    const name = (p[0] || "").trim();
-    const valueStr = (p[1] || "").trim();
-    const unit = (p[2] || "").trim();
-
-    if (!name || !valueStr) continue;
-
-    const val = Number(String(valueStr).replace(",", "."));
-    items.push({ name, value: val, unit });
-  }
-  return items;
-}
-
 function statusClass(st){
   if (st.includes("✅")) return "s-ok";
   if (st.includes("🔺")) return "s-hi";
@@ -245,77 +243,128 @@ function statusClass(st){
   return "s-warn";
 }
 
-function compare(value, min, max){
-  if (value < min) return "🔻 ниже нормы";
-  if (value > max) return "🔺 выше нормы";
-  return "✅ норма";
+/** ==========================
+ *  5) Build inputs list (НЕ textarea — обычные поля)
+ *  ========================== */
+function buildInputs(){
+  els.inputs.innerHTML = "";
+  for (const it of INDICATORS){
+    const name = it.key;
+    const unit = it.unit;
+
+    const nameEl = document.createElement("div");
+    nameEl.innerHTML = `<b>${escapeHtml(name)}</b><div class="mini">${escapeHtml(unit)}</div>`;
+
+    const valueEl = document.createElement("input");
+    valueEl.type = "number";
+    valueEl.step = "any";
+    valueEl.className = "value";
+    valueEl.placeholder = "—";
+    valueEl.dataset.key = name;
+
+    const unitEl = document.createElement("input");
+    unitEl.type = "text";
+    unitEl.className = "small";
+    unitEl.value = unit;
+    unitEl.dataset.unitFor = name;
+
+    els.inputs.appendChild(nameEl);
+    els.inputs.appendChild(valueEl);
+    els.inputs.appendChild(unitEl);
+  }
 }
 
-function renderTable(rows){
+/** ==========================
+ *  6) Read norms JSON
+ *  ========================== */
+function parseNormsJSON(){
+  const txt = els.norms.value.trim();
+  return JSON.parse(txt);
+}
+
+/** ==========================
+ *  7) Collect results from inputs
+ *  ========================== */
+function collectResults(){
+  const rows = [];
+  const inputs = els.inputs.querySelectorAll('input.value');
+  for (const inp of inputs){
+    const key = inp.dataset.key;
+    const raw = inp.value;
+    if (raw === "" || raw === null) continue;
+    const val = Number(String(raw).replace(",", "."));
+    const unitInp = els.inputs.querySelector(`input[data-unit-for="${CSS.escape(key)}"]`);
+    const unit = unitInp ? unitInp.value.trim() : "";
+    rows.push({ name: key, value: val, unit });
+  }
+  return rows;
+}
+
+/** ==========================
+ *  8) Render report table
+ *  ========================== */
+function renderReportTable(rows){
   if (!rows.length){
-    els.report.innerHTML = `<div class="mut">Заполни результаты и нажми “Проверить”.</div>`;
+    els.report.innerHTML = `<div class="mut">Нет данных. Заполни значения и нажми “Проверить”.</div>`;
     return;
   }
-
   const html = `
-  <table class="table">
-    <thead>
-      <tr>
-        <th style="width:24%;">Показатель</th>
-        <th style="width:14%;">Значение</th>
-        <th style="width:12%;">Ед.</th>
-        <th style="width:30%;">Норма</th>
-        <th style="width:20%;">Статус</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${rows.map(r => `
+    <table class="table">
+      <thead>
         <tr>
-          <td><b>${escapeHtml(r.name)}</b></td>
-          <td>${escapeHtml(String(r.value ?? ""))}</td>
-          <td>${escapeHtml(r.unit ?? "")}</td>
-          <td class="mut">${escapeHtml(r.normText ?? "—")}</td>
-          <td class="${statusClass(r.status)}">${escapeHtml(r.status)}</td>
+          <th style="width:34%;">Показатель</th>
+          <th style="width:12%;">Значение</th>
+          <th style="width:12%;">Ед.</th>
+          <th style="width:22%;">Норма</th>
+          <th style="width:20%;">Статус</th>
         </tr>
-      `).join("")}
-    </tbody>
-  </table>`;
+      </thead>
+      <tbody>
+        ${rows.map(r => `
+          <tr>
+            <td><b>${escapeHtml(r.name)}</b></td>
+            <td>${escapeHtml(String(r.value ?? ""))}</td>
+            <td>${escapeHtml(r.unit ?? "")}</td>
+            <td class="mut">${escapeHtml(r.normText ?? "—")}</td>
+            <td class="${statusClass(r.status)}">${escapeHtml(r.status)}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
   els.report.innerHTML = html;
 }
 
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, (m)=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
-  }[m]));
-}
-
+/** ==========================
+ *  9) Main: build report
+ *  ========================== */
 function buildReport(){
   els.error.textContent = "";
   lastReportRows = [];
 
   const age = parseFloat(els.age.value);
-  const yearBand = pickYearBand(age);
+  const y = pickYearBand(age);
 
   let normsByYear;
   try{
-    normsByYear = parseNorms();
+    normsByYear = parseNormsJSON();
   }catch(e){
     els.error.textContent = "❌ Ошибка в JSON норм. Проверь запятые/кавычки.";
-    renderTable([]);
+    renderReportTable([]);
     return;
   }
 
-  const norms = normsByYear[String(yearBand)];
+  const norms = normsByYear[String(y)];
   if (!norms || typeof norms !== "object"){
-    els.error.textContent = `❌ Нет норм для года: ${yearBand}.`;
-    renderTable([]);
+    els.error.textContent = `❌ Нет норм для возраста (год): ${y}.`;
+    renderReportTable([]);
     return;
   }
 
-  const results = parseResultsText();
+  const results = collectResults();
   if (!results.length){
-    els.error.textContent = "❌ Нет результатов. Введи строки вида: Показатель; значение; единицы";
-    renderTable([]);
+    els.error.textContent = "❌ Ты не ввёл ни одного значения.";
+    renderReportTable([]);
     return;
   }
 
@@ -323,54 +372,52 @@ function buildReport(){
   for (const r of results){
     const n = norms[r.name];
     if (!n){
-      rows.push({ name: r.name, value: r.value, unit: r.unit, normText: "—", status: "⚠️ нет нормы" });
+      rows.push({ name:r.name, value:r.value, unit:r.unit, normText:"—", status:"⚠️ нет нормы" });
       continue;
     }
 
-    if (!r.unit || !n.unit){
+    // Если min/max не заданы — не сравниваем
+    const min = (n.min === null || n.min === "" || typeof n.min === "undefined") ? NaN : Number(n.min);
+    const max = (n.max === null || n.max === "" || typeof n.max === "undefined") ? NaN : Number(n.max);
+
+    if (!Number.isFinite(min) || !Number.isFinite(max)){
       rows.push({
-        name: r.name, value: r.value, unit: r.unit || "",
-        normText: `${n.min}–${n.max} ${n.unit || ""}`.trim(),
-        status: "⚠️ нет единиц"
+        name:r.name, value:r.value, unit:r.unit,
+        normText:"—",
+        status:"⚠️ норма не задана"
       });
       continue;
     }
 
-    if (String(r.unit).trim() !== String(n.unit).trim()){
+    // Единицы: если разные — предупреждение
+    const nu = String(n.unit ?? "").trim();
+    const ru = String(r.unit ?? "").trim();
+    if (nu && ru && nu !== ru){
       rows.push({
-        name: r.name, value: r.value, unit: r.unit,
-        normText: `${n.min}–${n.max} ${n.unit}`,
-        status: "⚠️ разные единицы"
+        name:r.name, value:r.value, unit:r.unit,
+        normText:`${min}–${max} ${nu}`,
+        status:"⚠️ разные единицы"
       });
       continue;
     }
 
-    const val = Number(r.value);
-    const min = Number(n.min);
-    const max = Number(n.max);
-
-    if ([val,min,max].some(x => Number.isNaN(x))){
-      rows.push({
-        name: r.name, value: r.value, unit: r.unit,
-        normText: `${n.min}–${n.max} ${n.unit}`,
-        status: "⚠️ неверные числа"
-      });
-      continue;
-    }
-
+    const st = compare(Number(r.value), min, max);
     rows.push({
-      name: r.name,
-      value: val,
-      unit: r.unit,
-      normText: `${min}–${max} ${n.unit}`,
-      status: compare(val, min, max)
+      name:r.name,
+      value:Number(r.value),
+      unit: ru || nu,
+      normText:`${min}–${max} ${ru || nu}`.trim(),
+      status: st
     });
   }
 
   lastReportRows = rows;
-  renderTable(rows);
+  renderReportTable(rows);
 }
 
+/** ==========================
+ *  10) CSV
+ *  ========================== */
 function downloadCSV(){
   if (!lastReportRows.length){
     els.error.textContent = "❌ Сначала нажми “Проверить”, чтобы появился отчёт.";
@@ -393,31 +440,55 @@ function downloadCSV(){
   URL.revokeObjectURL(url);
 }
 
-// init
+/** ==========================
+ *  11) Demo fill
+ *  ========================== */
+function fillDemo(){
+  const demo = {
+    "Лейкоциты (WBC)": 6.1,
+    "Эритроциты (RBC)": 4.6,
+    "Гемоглобин (HGB)": 112,
+    "Гематокрит (HCT)": 34,
+    "Тромбоциты (PLT)": 420,
+    "Глюкоза": 5.2
+  };
+  // Заполним только те поля, что есть
+  const inputs = els.inputs.querySelectorAll('input.value');
+  for (const inp of inputs){
+    const key = inp.dataset.key;
+    inp.value = (demo[key] ?? "");
+  }
+}
+
+/** ==========================
+ *  12) Clear
+ *  ========================== */
+function clearAll(){
+  els.error.textContent = "";
+  const inputs = els.inputs.querySelectorAll('input.value');
+  for (const inp of inputs) inp.value = "";
+  renderReportTable([]);
+}
+
+/** ==========================
+ *  13) Init
+ *  ========================== */
+buildInputs();
 els.norms.value = JSON.stringify(DEFAULT_NORMS_BY_YEAR, null, 2);
-
-// Главное изменение: не заполняем результаты текстом (чтобы не было "активного" выделения)
-els.results.value = "";
-
 setBandPill();
+renderReportTable([]);
 
-// Главное изменение: не строим отчёт автоматически (ждём кнопку "Проверить")
-renderTable([]);
-
-// events
-els.age.addEventListener("input", () => { setBandPill(); });
+els.age.addEventListener("input", setBandPill);
 els.checkBtn.addEventListener("click", buildReport);
-els.exampleBtn.addEventListener("click", () => {
-  els.results.value = DEFAULT_RESULTS_TEXT;
-  els.error.textContent = "";
-  buildReport();
-});
-els.clearBtn.addEventListener("click", () => {
-  els.results.value = "";
-  els.error.textContent = "";
-  renderTable([]);
-});
 els.csvBtn.addEventListener("click", downloadCSV);
+els.fillDemoBtn.addEventListener("click", () => { fillDemo(); els.error.textContent=""; });
+els.clearBtn.addEventListener("click", clearAll);
+
+els.toggleNormsBtn.addEventListener("click", () => {
+  const hidden = els.normsBox.classList.contains("hidden");
+  els.normsBox.classList.toggle("hidden");
+  els.toggleNormsBtn.textContent = hidden ? "Скрыть нормы (JSON)" : "Редактировать нормы (JSON)";
+});
 </script>
 </body>
 </html>
