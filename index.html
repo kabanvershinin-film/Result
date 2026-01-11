@@ -93,12 +93,18 @@
       </div>
 
       <div class="card">
-        <label>Результаты (ввод строками): <span class="mut">Показатель; значение; единицы</span></label>
-        <textarea id="results"></textarea>
+        <label>Результаты анализов</label>
+        <textarea id="results"
+          placeholder="Введите результаты (по одной строке):
+Гемоглобин; 112; г/л
+Лейкоциты; 6.1; 10^9/л
+Тромбоциты; 420; 10^9/л"></textarea>
+
         <div class="foot">
-          Пример строки: <code class="k">Гемоглобин; 112; г/л</code> (разделитель можно <code class="k">;</code> или <code class="k">,</code>)<br/>
+          Формат: <code class="k">Показатель; значение; единицы</code> (разделитель можно <code class="k">;</code> или <code class="k">,</code>)<br/>
           Если единицы пустые — сравнение пропустится.
         </div>
+
         <div class="btns">
           <button class="primary" id="checkBtn">Проверить</button>
           <button id="exampleBtn">Заполнить пример</button>
@@ -195,8 +201,6 @@ function clampAge(a){
 }
 
 function pickYearBand(ageYears){
-  // Разбивка "по году": 0..12
-  // Если 0.0–0.999 => 0, 1.0–1.999 => 1, ...
   return Math.floor(clampAge(ageYears));
 }
 
@@ -212,7 +216,6 @@ function parseNorms(){
 }
 
 function splitLine(line){
-  // Разделители ; или ,
   const parts = line.split(";").map(s=>s.trim());
   if (parts.length >= 2) return parts;
   return line.split(",").map(s=>s.trim());
@@ -250,7 +253,7 @@ function compare(value, min, max){
 
 function renderTable(rows){
   if (!rows.length){
-    els.report.innerHTML = `<div class="mut">Нет данных для отчёта. Заполни результаты и нажми “Проверить”.</div>`;
+    els.report.innerHTML = `<div class="mut">Заполни результаты и нажми “Проверить”.</div>`;
     return;
   }
 
@@ -320,15 +323,10 @@ function buildReport(){
   for (const r of results){
     const n = norms[r.name];
     if (!n){
-      rows.push({
-        name: r.name, value: r.value, unit: r.unit,
-        normText: "—",
-        status: "⚠️ нет нормы"
-      });
+      rows.push({ name: r.name, value: r.value, unit: r.unit, normText: "—", status: "⚠️ нет нормы" });
       continue;
     }
 
-    // units optional: if empty -> warn
     if (!r.unit || !n.unit){
       rows.push({
         name: r.name, value: r.value, unit: r.unit || "",
@@ -397,9 +395,14 @@ function downloadCSV(){
 
 // init
 els.norms.value = JSON.stringify(DEFAULT_NORMS_BY_YEAR, null, 2);
-els.results.value = DEFAULT_RESULTS_TEXT;
+
+// Главное изменение: не заполняем результаты текстом (чтобы не было "активного" выделения)
+els.results.value = "";
+
 setBandPill();
-buildReport();
+
+// Главное изменение: не строим отчёт автоматически (ждём кнопку "Проверить")
+renderTable([]);
 
 // events
 els.age.addEventListener("input", () => { setBandPill(); });
