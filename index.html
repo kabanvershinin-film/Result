@@ -180,18 +180,55 @@ const INDICATORS = [
  *  2) Нормы (шаблон): min/max пустые, чтобы ты вставил свои
  *  По умолчанию копируем для всех возрастов 0..12 один шаблон.
  *  ========================== */
-function makeBlankNorms(){
-  const yearObj = {};
+function makeDefaultNorms(){
+  // Базовые нормы (для проверки/работы сайта). Можно потом уточнять по возрастам.
+  const base = {
+    "Лейкоциты (WBC)": { unit:"10^9/л", min:5.0, max:12.0 },
+    "Эритроциты (RBC)": { unit:"10^12/л", min:3.9, max:5.3 },
+    "Гемоглобин (HGB)": { unit:"г/л", min:110, max:145 },
+    "Гематокрит (HCT)": { unit:"%", min:33, max:42 },
+
+    "Средний объём эритроцитов (MCV)": { unit:"фл", min:75, max:87 },
+    "Средн. содержание гемоглобина в эритроците (MCH)": { unit:"пг", min:24, max:30 },
+    "Средн. концентрация гемоглобина в эритроцитах (MCHC)": { unit:"г/л", min:320, max:360 },
+    "Показатель гетерогенности эритроцитов (RDW)": { unit:"%", min:11.5, max:14.5 },
+
+    "Тромбоциты (PLT)": { unit:"10^9/л", min:150, max:400 },
+    "Средний объём тромбоцитов (MPV)": { unit:"фл", min:7.0, max:11.0 },
+
+    "Бласты": { unit:"%", min:0, max:0 },
+    "Промиелоциты": { unit:"%", min:0, max:0 },
+    "Пролимфоциты": { unit:"%", min:0, max:0 },
+    "Миелоциты": { unit:"%", min:0, max:0 },
+    "Метамиелоциты": { unit:"%", min:0, max:0 },
+
+    "Палочкоядерные нейтрофилы, %": { unit:"%", min:1, max:6 },
+    "Сегментоядерные нейтрофилы (NE), %": { unit:"%", min:30, max:55 },
+    "Эозинофилы (EO), %": { unit:"%", min:0, max:5 },
+    "Базофилы (BA), %": { unit:"%", min:0, max:1 },
+
+    "Лимфоциты (LY), %": { unit:"%", min:35, max:60 },
+    "Лимфоциты (LY), абс.": { unit:"10^9/л", min:1.5, max:7.0 },
+    "Моноциты (MO), %": { unit:"%", min:3, max:10 },
+
+    "Плазматические клетки": { unit:"%", min:0, max:0 },
+    "СОЭ": { unit:"мм/ч", min:2, max:10 }
+  };
+
+  // Подстрахуемся: если в INDICATORS есть показатель, которого нет в base — добавим пустышку
   for (const it of INDICATORS){
-    yearObj[it.key] = { unit: it.unit, min: null, max: null };
+    if (!base[it.key]) base[it.key] = { unit: it.unit, min: null, max: null };
   }
+
   const byYear = {};
   for (let y=0; y<=12; y++){
-    byYear[String(y)] = structuredClone(yearObj);
+    byYear[String(y)] = structuredClone(base);
   }
   return byYear;
 }
-const DEFAULT_NORMS_BY_YEAR = makeBlankNorms();
+
+const DEFAULT_NORMS_BY_YEAR = makeDefaultNorms();
+
 
 /** ==========================
  *  3) UI refs
