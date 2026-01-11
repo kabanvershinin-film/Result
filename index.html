@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Проверка анализов ребёнка (0–12 лет)</title>
+  <style>
+    :root { --bd:#e5e7eb; --tx:#111827; --mut:#6b7280; --bg:#f9fafb; }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--tx); background:var(--bg);
+    }
+    .wrap{ max-width:1100px; margin:0 auto; padding:20px; }
+    .top{
+      display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; justify-content:space-between;
+      margin-bottom:14px;
+    }
+    h1{ font-size:20px; margin:0; }
+    .note{ color:var(--mut); font-size:13px; margin-top:6px; }
+    .grid{
+      display:grid; grid-template-columns: 1fr 1fr; gap:14px;
+    }
+    @media (max-width: 900px){ .grid{ grid-template-columns:1fr; } }
+    .card{
+      background:white; border:1px solid var(--bd); border-radius:14px; padding:14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    }
+    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    label{ font-size:13px; color:var(--mut); display:block; margin-bottom:6px; }
+    input[type="number"]{
+      width:160px; padding:10px 12px; border:1px solid var(--bd); border-radius:10px; background:white;
+      font-size:14px;
+    }
+    textarea{
+      width:100%; min-height:260px; padding:12px; border:1px solid var(--bd); border-radius:12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12.5px; line-height:1.35; resize:vertical;
+    }
+    .btns{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+    button{
+      padding:10px 12px; border-radius:12px; border:1px solid var(--bd);
+      background:white; cursor:pointer; font-weight:600;
+    }
+    button.primary{ background:#111827; color:white; border-color:#111827; }
+    button:hover{ filter:brightness(.98); }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--bd);
+      border-radius:999px; background:white; color:var(--mut); font-size:13px;
+    }
+    .table{
+      width:100%; border-collapse:separate; border-spacing:0; overflow:hidden;
+      border:1px solid var(--bd); border-radius:14px; background:white;
+    }
+    .table th, .table td{
+      padding:10px 10px; border-bottom:1px solid var(--bd); font-size:13px; vertical-align:top;
+    }
+    .table th{ text-align:left; color:var(--mut); font-weight:700; background:#fafafa; }
+    .table tr:last-child td{ border-bottom:none; }
+    .s-ok{ color:#065f46; font-weight:700; }
+    .s-hi{ color:#92400e; font-weight:700; }
+    .s-lo{ color:#9f1239; font-weight:700; }
+    .s-warn{ color:#374151; font-weight:700; }
+    .mut{ color:var(--mut); }
+    .err{ color:#b91c1c; font-weight:700; }
+    .foot{ margin-top:10px; color:var(--mut); font-size:12px; }
+    code.k{ background:#f3f4f6; padding:2px 6px; border-radius:8px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>Проверка анализов ребёнка (0–12 лет)</h1>
+        <div class="note">Работает полностью в браузере. Нормы и анализы ты задаёшь сам.</div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="age">Возраст (лет, можно дробно: 0.5 = 6 месяцев)</label>
+          <input id="age" type="number" min="0" max="12" step="0.1" value="7" />
+        </div>
+        <div class="pill" id="ageBandPill">Группа: —</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <label>Нормы (JSON). Можно менять. Формат: по возрастным годам 0..12 (каждый год отдельно)</label>
+        <textarea id="norms"></textarea>
+        <div class="foot">
+          Подсказка: структура такая: <code class="k">"0": { "Гемоглобин": {"unit":"г/л","min":..,"max":..}, ... }</code>
+        </div>
+      </div>
+
+      <div class="card">
+        <label>Результаты (ввод строками): <span class="mut">Показатель; значение; единицы</span></label>
+        <textarea id="results"></textarea>
+        <div class="foot">
+          Пример строки: <code class="k">Гемоглобин; 112; г/л</code> (разделитель можно <code class="k">;</code> или <code class="k">,</code>)<br/>
+          Если единицы пустые — сравнение пропустится.
+        </div>
+        <div class="btns">
+          <button class="primary" id="checkBtn">Проверить</button>
+          <button id="exampleBtn">Заполнить пример</button>
+          <button id="clearBtn">Очистить результаты</button>
+          <button id="csvBtn">Скачать CSV</button>
+        </div>
+        <div class="foot err" id="error"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <label>Отчёт</label>
+      <div id="report"></div>
+      <div class="foot">
+        ⚠️ Информационный инструмент. При отклонениях — лучше обсудить результаты с врачом и смотреть референсы вашей лаборатории.
+      </div>
+    </div>
+  </div>
+
+<script>
+/**
+ * Нормы ПО ГОДАМ 0..12.
+ * ВНИМАНИЕ: значения ниже — ДЕМО/шаблон для работы логики.
+ * Заменяй min/max на те, которые ты “дашь” (из твоих таблиц/лаборатории).
+ */
+const DEFAULT_NORMS_BY_YEAR = {
+  "0": {
+    "Гемоглобин":        {"unit":"г/л","min":100,"max":140},
+    "Эритроциты":        {"unit":"10^12/л","min":3.3,"max":4.9},
+    "Гематокрит":        {"unit":"%","min":30,"max":41},
+    "Лейкоциты":         {"unit":"10^9/л","min":6.0,"max":17.5},
+    "Нейтрофилы":        {"unit":"%","min":15,"max":45},
+    "Лимфоциты":         {"unit":"%","min":45,"max":75},
+    "Моноциты":          {"unit":"%","min":3,"max":12},
+    "Эозинофилы":        {"unit":"%","min":0,"max":5},
+    "Базофилы":          {"unit":"%","min":0,"max":1},
+    "Тромбоциты":        {"unit":"10^9/л","min":150,"max":450},
+    "СОЭ":               {"unit":"мм/ч","min":0,"max":10},
+    "Глюкоза":           {"unit":"ммоль/л","min":3.3,"max":5.5},
+    "АЛТ":               {"unit":"Ед/л","min":0,"max":50},
+    "АСТ":               {"unit":"Ед/л","min":0,"max":60},
+    "Билирубин общий":   {"unit":"мкмоль/л","min":3,"max":20}
+  },
+  "1": {}, "2": {}, "3": {}, "4": {}, "5": {}, "6": {}, "7": {}, "8": {}, "9": {}, "10": {}, "11": {}, "12": {}
+};
+
+// Заполним 1..12 типовыми (как шаблон), чтобы не было пусто
+const TEMPLATE_1_12 = {
+  "Гемоглобин":        {"unit":"г/л","min":115,"max":155},
+  "Эритроциты":        {"unit":"10^12/л","min":4.0,"max":5.2},
+  "Гематокрит":        {"unit":"%","min":35,"max":45},
+  "Лейкоциты":         {"unit":"10^9/л","min":4.5,"max":13.5},
+  "Нейтрофилы":        {"unit":"%","min":35,"max":65},
+  "Лимфоциты":         {"unit":"%","min":25,"max":55},
+  "Моноциты":          {"unit":"%","min":3,"max":11},
+  "Эозинофилы":        {"unit":"%","min":0,"max":5},
+  "Базофилы":          {"unit":"%","min":0,"max":1},
+  "Тромбоциты":        {"unit":"10^9/л","min":150,"max":400},
+  "СОЭ":               {"unit":"мм/ч","min":0,"max":15},
+  "Глюкоза":           {"unit":"ммоль/л","min":3.3,"max":5.5},
+  "АЛТ":               {"unit":"Ед/л","min":0,"max":40},
+  "АСТ":               {"unit":"Ед/л","min":0,"max":40},
+  "Билирубин общий":   {"unit":"мкмоль/л","min":3,"max":20}
+};
+for (let y=1; y<=12; y++){
+  DEFAULT_NORMS_BY_YEAR[String(y)] = structuredClone(TEMPLATE_1_12);
+}
+
+const DEFAULT_RESULTS_TEXT =
+`Гемоглобин; 112; г/л
+Лейкоциты; 6.1; 10^9/л
+Тромбоциты; 420; 10^9/л
+Глюкоза; 5.2; ммоль/л
+АЛТ; 55; Ед/л`;
+
+const els = {
+  age: document.getElementById("age"),
+  norms: document.getElementById("norms"),
+  results: document.getElementById("results"),
+  report: document.getElementById("report"),
+  error: document.getElementById("error"),
+  ageBandPill: document.getElementById("ageBandPill"),
+  checkBtn: document.getElementById("checkBtn"),
+  exampleBtn: document.getElementById("exampleBtn"),
+  clearBtn: document.getElementById("clearBtn"),
+  csvBtn: document.getElementById("csvBtn"),
+};
+
+let lastReportRows = [];
+
+function clampAge(a){
+  if (Number.isNaN(a)) return 0;
+  return Math.min(12, Math.max(0, a));
+}
+
+function pickYearBand(ageYears){
+  // Разбивка "по году": 0..12
+  // Если 0.0–0.999 => 0, 1.0–1.999 => 1, ...
+  return Math.floor(clampAge(ageYears));
+}
+
+function setBandPill(){
+  const age = parseFloat(els.age.value);
+  const y = pickYearBand(age);
+  els.ageBandPill.textContent = `Группа: ${y} год(лет)`;
+}
+
+function parseNorms(){
+  const txt = els.norms.value.trim();
+  return JSON.parse(txt);
+}
+
+function splitLine(line){
+  // Разделители ; или ,
+  const parts = line.split(";").map(s=>s.trim());
+  if (parts.length >= 2) return parts;
+  return line.split(",").map(s=>s.trim());
+}
+
+function parseResultsText(){
+  const lines = els.results.value.split("\n").map(s=>s.trim()).filter(Boolean);
+  const items = [];
+  for (const line of lines){
+    const p = splitLine(line);
+    const name = (p[0] || "").trim();
+    const valueStr = (p[1] || "").trim();
+    const unit = (p[2] || "").trim();
+
+    if (!name || !valueStr) continue;
+
+    const val = Number(String(valueStr).replace(",", "."));
+    items.push({ name, value: val, unit });
+  }
+  return items;
+}
+
+function statusClass(st){
+  if (st.includes("✅")) return "s-ok";
+  if (st.includes("🔺")) return "s-hi";
+  if (st.includes("🔻")) return "s-lo";
+  return "s-warn";
+}
+
+function compare(value, min, max){
+  if (value < min) return "🔻 ниже нормы";
+  if (value > max) return "🔺 выше нормы";
+  return "✅ норма";
+}
+
+function renderTable(rows){
+  if (!rows.length){
+    els.report.innerHTML = `<div class="mut">Нет данных для отчёта. Заполни результаты и нажми “Проверить”.</div>`;
+    return;
+  }
+
+  const html = `
+  <table class="table">
+    <thead>
+      <tr>
+        <th style="width:24%;">Показатель</th>
+        <th style="width:14%;">Значение</th>
+        <th style="width:12%;">Ед.</th>
+        <th style="width:30%;">Норма</th>
+        <th style="width:20%;">Статус</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows.map(r => `
+        <tr>
+          <td><b>${escapeHtml(r.name)}</b></td>
+          <td>${escapeHtml(String(r.value ?? ""))}</td>
+          <td>${escapeHtml(r.unit ?? "")}</td>
+          <td class="mut">${escapeHtml(r.normText ?? "—")}</td>
+          <td class="${statusClass(r.status)}">${escapeHtml(r.status)}</td>
+        </tr>
+      `).join("")}
+    </tbody>
+  </table>`;
+  els.report.innerHTML = html;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, (m)=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+  }[m]));
+}
+
+function buildReport(){
+  els.error.textContent = "";
+  lastReportRows = [];
+
+  const age = parseFloat(els.age.value);
+  const yearBand = pickYearBand(age);
+
+  let normsByYear;
+  try{
+    normsByYear = parseNorms();
+  }catch(e){
+    els.error.textContent = "❌ Ошибка в JSON норм. Проверь запятые/кавычки.";
+    renderTable([]);
+    return;
+  }
+
+  const norms = normsByYear[String(yearBand)];
+  if (!norms || typeof norms !== "object"){
+    els.error.textContent = `❌ Нет норм для года: ${yearBand}.`;
+    renderTable([]);
+    return;
+  }
+
+  const results = parseResultsText();
+  if (!results.length){
+    els.error.textContent = "❌ Нет результатов. Введи строки вида: Показатель; значение; единицы";
+    renderTable([]);
+    return;
+  }
+
+  const rows = [];
+  for (const r of results){
+    const n = norms[r.name];
+    if (!n){
+      rows.push({
+        name: r.name, value: r.value, unit: r.unit,
+        normText: "—",
+        status: "⚠️ нет нормы"
+      });
+      continue;
+    }
+
+    // units optional: if empty -> warn
+    if (!r.unit || !n.unit){
+      rows.push({
+        name: r.name, value: r.value, unit: r.unit || "",
+        normText: `${n.min}–${n.max} ${n.unit || ""}`.trim(),
+        status: "⚠️ нет единиц"
+      });
+      continue;
+    }
+
+    if (String(r.unit).trim() !== String(n.unit).trim()){
+      rows.push({
+        name: r.name, value: r.value, unit: r.unit,
+        normText: `${n.min}–${n.max} ${n.unit}`,
+        status: "⚠️ разные единицы"
+      });
+      continue;
+    }
+
+    const val = Number(r.value);
+    const min = Number(n.min);
+    const max = Number(n.max);
+
+    if ([val,min,max].some(x => Number.isNaN(x))){
+      rows.push({
+        name: r.name, value: r.value, unit: r.unit,
+        normText: `${n.min}–${n.max} ${n.unit}`,
+        status: "⚠️ неверные числа"
+      });
+      continue;
+    }
+
+    rows.push({
+      name: r.name,
+      value: val,
+      unit: r.unit,
+      normText: `${min}–${max} ${n.unit}`,
+      status: compare(val, min, max)
+    });
+  }
+
+  lastReportRows = rows;
+  renderTable(rows);
+}
+
+function downloadCSV(){
+  if (!lastReportRows.length){
+    els.error.textContent = "❌ Сначала нажми “Проверить”, чтобы появился отчёт.";
+    return;
+  }
+  const header = ["Показатель","Значение","Ед.","Норма","Статус"];
+  const lines = [header.join(";")].concat(
+    lastReportRows.map(r => [
+      r.name, r.value ?? "", r.unit ?? "", r.normText ?? "", r.status ?? ""
+    ].map(x => String(x).replaceAll(";", ",")).join(";"))
+  );
+  const blob = new Blob([lines.join("\n")], {type:"text/csv;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "labs_report.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// init
+els.norms.value = JSON.stringify(DEFAULT_NORMS_BY_YEAR, null, 2);
+els.results.value = DEFAULT_RESULTS_TEXT;
+setBandPill();
+buildReport();
+
+// events
+els.age.addEventListener("input", () => { setBandPill(); });
+els.checkBtn.addEventListener("click", buildReport);
+els.exampleBtn.addEventListener("click", () => {
+  els.results.value = DEFAULT_RESULTS_TEXT;
+  els.error.textContent = "";
+  buildReport();
+});
+els.clearBtn.addEventListener("click", () => {
+  els.results.value = "";
+  els.error.textContent = "";
+  renderTable([]);
+});
+els.csvBtn.addEventListener("click", downloadCSV);
+</script>
+</body>
+</html>
