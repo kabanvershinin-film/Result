@@ -55,24 +55,34 @@
     .mini{ font-size:12px; color:var(--mut); }
     .divider{ height:1px; background:var(--bd); margin:12px 0; }
 
-    .inputs{
-      display:grid;
-      grid-template-columns: 1.4fr 160px 140px;
-      gap:10px;
-      align-items:center;
-    }
-    @media (max-width: 700px){
-      .inputs{ grid-template-columns: 1fr; }
-      input.value, input.small, select{ width:100%; }
-    }
-    .hdr{
-      display:grid;
-      grid-template-columns: 1.4fr 160px 140px;
-      gap:10px;
-      color:var(--mut);
-      font-size:12px;
-      font-weight:800;
-      margin-bottom:8px;
+    /* скрываем табличные заголовки */
+.hdr{
+  display:none !important;
+}
+
+/* один столбик */
+.inputs{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap:14px;
+}
+
+/* карточка показателя */
+.inputs > div{
+  display:grid;
+  gap:8px;
+  padding:14px;
+  border:1px solid var(--bd);
+  border-radius:14px;
+  background:#fff;
+}
+
+/* поля ввода на всю ширину */
+.inputs input,
+.inputs select{
+  width:100%;
+}
+
     }
     @media (max-width: 700px){ .hdr{ display:none; } }
 
